@@ -1,1 +1,3 @@
-# hse06_SoftwareDesign
+# Архитектура
+
+![architecture](architecture.png)
