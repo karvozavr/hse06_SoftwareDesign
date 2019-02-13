@@ -37,6 +37,9 @@ public class CLI {
             case "exit":
                 return new CommandExit();
 
+            case "grep":
+                return new CommandGrep();
+
             default:
                 return new CommandExternal(c);
         }
