@@ -7,6 +7,8 @@ import ru.spbau.gbarto.parser.Parser;
 import ru.spbau.gbarto.exception.ParserException;
 
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -15,6 +17,7 @@ import java.util.HashMap;
  */
 public class CLI {
     private HashMap<String, String> variables;
+    private Environment environment = new Environment(Paths.get(System.getProperty("user.dir")));
 
     public CLI() {
         variables = new HashMap<>();
@@ -32,13 +35,19 @@ public class CLI {
                 return new CommandWordCount();
 
             case "pwd":
-                return new CommandPwd();
+                return new CommandPwd(environment);
 
             case "exit":
                 return new CommandExit();
 
             case "grep":
                 return new CommandGrep();
+
+            case "ls":
+                return new CommandLs(environment);
+
+            case "cd":
+                return new CommandCd(environment);
 
             default:
                 return new CommandExternal(c);
@@ -54,6 +63,9 @@ public class CLI {
         } else {
             String c = command.command;
             String[] args = command.args;
+            if (args == null) {
+                args = new String[]{};
+            }
             return getExeCommand(c).execute(args, input);
         }
     }
@@ -70,9 +82,9 @@ public class CLI {
     /**
      * Processes the string by receiving consecutive commands with arguments passed to them and executing them.
      *
-     * @param s the string to be processed
+     * @param s      the string to be processed
      * @param output output stream
-     * @throws ParserException if something goes wrong during the parsing
+     * @throws ParserException  if something goes wrong during the parsing
      * @throws CommandException if something goes wrong during the execution of the command
      */
     public void execute(String s, OutputStream output) throws ParserException, CommandException {

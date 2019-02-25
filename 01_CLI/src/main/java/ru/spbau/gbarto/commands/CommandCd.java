@@ -5,17 +5,20 @@ import ru.spbau.gbarto.exception.CommandException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.stream.Collectors;
 
 /**
  * Returns current path.
  */
-public class CommandPwd extends AbstractCommand {
+public class CommandCd extends AbstractCommand {
 
-    private Path currentDirectory;
+    private Environment environment;
 
-    public CommandPwd(Environment environment) {
-        currentDirectory = environment.getCurrentDirectory();
+    public CommandCd(Environment environment) {
+        this.environment = environment;
     }
 
     /**
@@ -31,8 +34,12 @@ public class CommandPwd extends AbstractCommand {
         try {
             ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-            String pwd = currentDirectory.toString() + System.lineSeparator();
-            output.write(pwd.getBytes());
+            if (args.length == 0) {
+                environment.changeDirectory(Paths.get(System.getProperty("user.dir")).toAbsolutePath());
+            } else if (!(args.length == 1 && environment.changeDirectory(Paths.get(args[0])))) {
+                String error = "Error: invalid arguments." + System.lineSeparator();
+                output.write(error.getBytes());
+            }
 
             return output;
         } catch (IOException e) {
@@ -40,3 +47,4 @@ public class CommandPwd extends AbstractCommand {
         }
     }
 }
+
